@@ -117,14 +117,14 @@ infoClose.addEventListener('click', (e) => {
     // Use logarithmic scaling for smoother transitions
     const strokePx = v => {
       const norm = Math.log1p(v - strokeMin) / Math.log1p(strokeRange);
-      return 0.5 + norm * 2.5;
+      return 0.7 + norm * 3.2;
     };
 
     const colorFromStroke = v => {
       // Enhanced gradient: dark blue (small rivers) -> bright cyan (major rivers)
       const t = (v - strokeMin) / strokeRange;
-      const dark  = [5, 25, 70];      // #030c25 - dark blue
-      const light = [120, 210, 255];  // #6ecefd - bright cyan
+      const dark  = [0, 15, 53];      // rgba(0, 15, 53, 1) - dark blue
+      const light = [83, 198, 255];  // rgba(83, 198, 255, 1) - bright cyan
       const r = Math.round(dark[0] + (light[0] - dark[0]) * t);
       const g = Math.round(dark[1] + (light[1] - dark[1]) * t);
       const b = Math.round(dark[2] + (light[2] - dark[2]) * t);
