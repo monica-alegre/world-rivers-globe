@@ -1,0 +1,315 @@
+/* Layout */
+html, body { height: 100%; margin: 0; background: #0a0e17; color: #e8eaed; font-family: 'Roboto', sans-serif; }
+.fill { position: fixed; inset: 0; }
+
+/* Popup */
+.popup {
+  position: fixed; right: 20px; bottom: 20px; width: 380px; max-width: calc(100% - 40px);
+  background: rgba(15,18,25,0.98); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12); border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.8), 0 0 1px rgba(255,255,255,0.1);
+  overflow: hidden; z-index: 20;
+}
+.hidden { display: none; }
+.popup-close {
+  position: absolute; top: 10px; right: 12px; border: 0; background: transparent; color: #e8eaed;
+  font-size: 32px; cursor: pointer; transition: color 0.2s, transform 0.2s;
+  font-weight: 300; line-height: 1; padding: 0; width: 32px; height: 32px;
+}
+.popup-close:hover { color: #fff; transform: scale(1.1); }
+.popup-content { padding: 20px 24px 24px 24px; }
+.popup h3 { margin: 0 0 12px 0; font-size: 20px; font-weight: 500; color: #fff; }
+.popup p { margin: 8px 0; line-height: 1.5; color: #b8bdc6; font-size: 14px; }
+.popup p strong { color: #e8eaed; font-weight: 500; }
+.popup .thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 10px; background: #1a1d26; margin-bottom: 12px; }
+.popup a { color: #6bb6ff; text-decoration: none; transition: color 0.2s; }
+.popup a:hover { color: #92caff; text-decoration: underline; }
+
+#controls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(15,18,25,0.95);
+  backdrop-filter: blur(12px);
+  color: #e8eaed;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  font-size: 14px;
+  z-index: 1000;
+}
+
+#controls label {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+#controls input[type=range] {
+  vertical-align: middle;
+  margin: 0 8px;
+  accent-color: #6bb6ff;
+}
+
+#controls span {
+  display: inline-block;
+  min-width: 45px;
+  font-weight: 500;
+  color: #6bb6ff;
+}
+
+#controls button {
+  margin-left: 12px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  background: rgba(107,182,255,0.15);
+  color: #6bb6ff;
+  border: 1px solid rgba(107,182,255,0.3);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+#controls button:hover {
+  background: rgba(107,182,255,0.25);
+  border-color: rgba(107,182,255,0.5);
+  color: #92caff;
+}
+
+/* Info button */
+#info-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(15,18,25,0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6bb6ff;
+  transition: all 0.2s;
+  z-index: 1000;
+}
+
+#info-btn:hover {
+  background: rgba(15,18,25,1);
+  border-color: rgba(107,182,255,0.4);
+  color: #92caff;
+  transform: scale(1.05);
+}
+
+/* Info modal - sidebar */
+#info-modal {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100vh;
+  background: rgba(15,18,25,0.98);
+  backdrop-filter: blur(12px);
+  border-left: 1px solid rgba(255,255,255,0.12);
+  box-shadow: -8px 0 32px rgba(0,0,0,0.8);
+  z-index: 2000;
+  transition: right 0.3s ease;
+  overflow-y: auto;
+}
+
+#info-modal:not(.hidden) {
+  right: 0;
+}
+
+#info-modal.hidden {
+  right: -400px;
+}
+
+.modal-content {
+  padding: 80px 32px 32px 32px;
+  position: relative;
+}
+
+.modal-content h2 {
+  margin: 0 0 16px 0;
+  font-size: 24px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.modal-content .project-description {
+  margin: 0 0 32px 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #b8bdc6;
+}
+
+.modal-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #e8eaed;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-content p {
+  margin: 4px 0;
+  line-height: 1.6;
+  color: #b8bdc6;
+  font-size: 14px;
+}
+
+.modal-content p strong {
+  color: #e8eaed;
+  font-weight: 500;
+}
+
+.modal-content a {
+  color: #5a9dd8;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.modal-content a:hover {
+  color: #7db3e3;
+  text-decoration: underline;
+}
+
+.info-section {
+  margin-bottom: 28px;
+}
+
+.info-section:last-child {
+  margin-bottom: 0;
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  border: 0;
+  background: transparent;
+  color: #e8eaed;
+  font-size: 32px;
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s;
+  font-weight: 300;
+  line-height: 1;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+}
+
+.modal-close:hover {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  /* Info modal - full width on mobile */
+  #info-modal {
+    width: 100%;
+    right: -100%;
+  }
+
+  #info-modal:not(.hidden) {
+    right: 0;
+  }
+
+  #info-modal.hidden {
+    right: -100%;
+  }
+
+  .modal-content {
+    padding: 70px 24px 24px 24px;
+  }
+
+  .modal-content h2 {
+    font-size: 20px;
+  }
+
+  /* Popup - adjust for mobile */
+  .popup {
+    right: 10px;
+    bottom: 10px;
+    width: calc(100% - 20px);
+    max-width: calc(100% - 20px);
+  }
+
+  .popup-content {
+    padding: 16px 20px 20px 20px;
+  }
+
+  .popup h3 {
+    font-size: 18px;
+  }
+
+  /* Controls - stack vertically on mobile */
+  #controls {
+    left: 10px;
+    bottom: 10px;
+    right: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+
+  #controls label {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  #controls input[type=range] {
+    width: 100%;
+    margin: 8px 0;
+  }
+
+  #controls span {
+    display: block;
+    margin: 8px 0;
+    text-align: center;
+  }
+
+  #controls button {
+    width: 100%;
+    margin: 8px 0 0 0;
+    padding: 10px 14px;
+  }
+
+  /* Info button */
+  #info-btn {
+    top: 10px;
+    right: 10px;
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content h2 {
+    font-size: 18px;
+  }
+
+  .modal-content .project-description {
+    font-size: 14px;
+  }
+
+  .popup h3 {
+    font-size: 16px;
+  }
+
+  .popup p {
+    font-size: 13px;
+  }
+
+  #controls {
+    font-size: 12px;
+  }
+}
+

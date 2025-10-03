@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>World Rivers 3D Globe</title>
+    <meta name="description" content="Interactive 3D globe of the world's major rivers with Wikipedia-linked information in popups." />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <!-- globe.gl UMD (incluye three y el render loop) -->
+    <script src="https://cdn.jsdelivr.net/npm/globe.gl" defer></script>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <div id="globeViz" class="fill"></div>
+
+    <!-- Popup (Wikipedia) -->
+    <div id="popup" class="popup hidden" role="dialog" aria-live="polite">
+      <button id="popup-close" class="popup-close" aria-label="Close">×</button>
+      <div id="popup-content" class="popup-content"></div>
+    </div>
+
+    <!-- Slider filter -->
+    <div id="controls">
+      <label for="lenSlider">Min length (km):</label>
+      <input type="range" id="lenSlider" min="0" max="5000" step="100" value="0">
+      <span id="lenValue">0</span>
+      <button id="resetBtn">Reset</button>
+    </div>
+
+    <!-- Info button -->
+    <button id="info-btn" aria-label="Information" title="Information">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+    </button>
+
+    <!-- Info modal -->
+    <div id="info-modal" class="hidden">
+      <div class="modal-content">
+        <button id="info-close" class="modal-close" aria-label="Close">×</button>
+        <h2>About this Project</h2>
+
+        <p class="project-description">Interactive 3D globe of the world's major rivers with Wikipedia-linked information in popups.</p>
+
+        <div class="info-section">
+          <h3>Data Sources</h3>
+          <p><strong>Natural Earth</strong></p>
+          <p>
+            <a href="https://www.naturalearthdata.com/downloads/10m-physical-vectors/10m-rivers-lake-centerlines/"
+              target="_blank" rel="noopener">
+              10m Rivers + Lake Centerlines
+            </a>
+          </p>
+          <p><strong>Wikipedia / Wikidata</strong></p>
+          <p>River information in popups is retrieved from Wikipedia and Wikidata.</p>          
+          <p><strong>NASA Visible Earth</strong></p>
+          <p>
+            <a href="https://visibleearth.nasa.gov/images/73963/bathymetry"
+              target="_blank" rel="noopener">
+              Bathymetry basemap
+            </a> (edited version used).
+          </p>
+        </div>
+
+        <div class="info-section">
+          <h3>Technologies</h3>
+          <p>Built with <strong>globe.gl</strong> (Three.js-based WebGL globe visualization), integrated with <strong>Wikidata API</strong> for river information and <strong>Wikipedia REST API</strong> for summaries and images. Data processing with <strong>GeoJSON</strong> and interactive filtering.</p>
+        </div>
+
+        <div class="info-section">
+          <h3>Author</h3>
+          <p><strong>Monica Alegre</strong></p>
+          <p>
+            <a href="https://www.linkedin.com/in/malegre-gis/" target="_blank" rel="noopener">LinkedIn Profile</a><br>
+            <a href="https://www.monica-alegre.me/" target="_blank" rel="noopener">Personal Website</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
