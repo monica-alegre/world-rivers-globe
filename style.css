@@ -2,6 +2,25 @@
 html, body { height: 100%; margin: 0; background: #0a0e17; color: #e8eaed; font-family: 'Roboto', sans-serif; }
 .fill { position: fixed; inset: 0; }
 
+/* Header */
+#main-header {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+#main-header h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Roboto', sans-serif;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.5px;
+}
+
 /* Popup */
 .popup {
   position: fixed; right: 20px; bottom: 20px; width: 380px; max-width: calc(100% - 40px);
@@ -215,6 +234,16 @@ html, body { height: 100%; margin: 0; background: #0a0e17; color: #e8eaed; font-
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  /* Header - responsive */
+  #main-header {
+    top: 10px;
+    left: 10px;
+  }
+
+  #main-header h1 {
+    font-size: 20px;
+  }
+
   /* Info modal - full width on mobile */
   #info-modal {
     width: 100%;
@@ -298,6 +327,11 @@ html, body { height: 100%; margin: 0; background: #0a0e17; color: #e8eaed; font-
 }
 
 @media (max-width: 480px) {
+  /* Header - smaller on very small screens */
+  #main-header h1 {
+    font-size: 18px;
+  }
+
   .modal-content h2 {
     font-size: 18px;
   }
