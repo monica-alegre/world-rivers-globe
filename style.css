@@ -120,6 +120,7 @@ html, body { height: 100%; margin: 0; background: #0a0e17; color: #e8eaed; font-
   z-index: 2000;
   transition: right 0.3s ease;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 #info-modal:not(.hidden) {
@@ -133,6 +134,7 @@ html, body { height: 100%; margin: 0; background: #0a0e17; color: #e8eaed; font-
 .modal-content {
   padding: 80px 32px 32px 32px;
   position: relative;
+  min-height: calc(100vh + 1px);
 }
 
 .modal-content h2 {
