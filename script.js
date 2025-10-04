@@ -4,13 +4,12 @@ const el = document.getElementById('globeViz');
 // ---------- Globe setup ----------
 const world = new Globe(el)
   .globeImageUrl('data/basemap.jpg')
-  .backgroundColor('#01070e')
+  .backgroundColor('#000a11')
   .showAtmosphere(true)
-  .atmosphereColor('#2b5e91')   // blue tone to match halo
+  .atmosphereColor('#1363b4')   // blue tone to match halo
   .atmosphereAltitude(0.15)       // slightly thicker halo
   .showGraticules(false)
-  .lineHoverPrecision(2.5)
-  .pathTransitionDuration(0);     // disable path morphing to avoid stutter
+  .lineHoverPrecision(2.5)  
 
 // Force ambient-only blue lighting (kill any DirectionalLight)
 function applyBlueAmbient() {
@@ -108,26 +107,53 @@ infoClose.addEventListener('click', (e) => {
       return [];
     });
 
-    // Compute stroke scale (safe)
-    const strokeVals = visualPaths.map(d => d.strokeVal).filter(Number.isFinite);
-    const strokeMin = strokeVals.length ? Math.min(...strokeVals) : 0;
-    const strokeMax = strokeVals.length ? Math.max(...strokeVals) : 1;
-    const strokeRange = Math.max(1e-9, strokeMax - strokeMin);
+    // Precompute a custom scaling based on percentiles
+    const strokeValues = [0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.8,1,1.25,1.5,2];
+    const breaks = [0.25, 0.35, 0.6, 1]; // define quantile-like thresholds
 
-    // Use logarithmic scaling for smoother transitions
+    // Stroke width mapping
     const strokePx = v => {
-      const norm = Math.log1p(v - strokeMin) / Math.log1p(strokeRange);
-      return 0.7 + norm * 3.2;
+      if (v <= breaks[0]) return 1.2;   // very fine
+      if (v <= breaks[1]) return 1.8;   // fine
+      if (v <= breaks[2]) return 2.4;   // medium
+      if (v <= breaks[3]) return 3.2;   // large
+      return 4.0;                       // major
     };
 
+    // Smooth color ramp
     const colorFromStroke = v => {
-      // Enhanced gradient: dark blue (small rivers) -> bright cyan (major rivers)
-      const t = (v - strokeMin) / strokeRange;
-      const dark  = [0, 15, 53];      // rgba(0, 15, 53, 1) - dark blue
-      const light = [83, 198, 255];  // rgba(83, 198, 255, 1) - bright cyan
-      const r = Math.round(dark[0] + (light[0] - dark[0]) * t);
-      const g = Math.round(dark[1] + (light[1] - dark[1]) * t);
-      const b = Math.round(dark[2] + (light[2] - dark[2]) * t);
+      let t;
+      if (v <= breaks[0]) {
+        t = (v - strokeValues[0]) / (breaks[0] - strokeValues[0]) * 0.25;
+      } else if (v <= breaks[1]) {
+        t = 0.25 + (v - breaks[0]) / (breaks[1] - breaks[0]) * 0.25;
+      } else if (v <= breaks[2]) {
+        t = 0.5 + (v - breaks[1]) / (breaks[2] - breaks[1]) * 0.25;
+      } else if (v <= breaks[3]) {
+        t = 0.75 + (v - breaks[2]) / (breaks[3] - breaks[2]) * 0.25;
+      } else {
+        t = 1.0;
+      }
+
+      const colors = [
+        [7, 18, 78],     // #07124eff dark navy
+        [23, 71, 165],   // #1747A5 medium blue
+        [0, 119, 204],   // #0077CC bright blue
+        [34, 184, 230],  // #22B8E6 cyan
+        [90, 200, 245]   // #5AC8F5 light cyan (lightest)
+      ];
+
+      // Find segment
+      const idx = Math.min(colors.length - 2, Math.floor(t * (colors.length - 1)));
+      const tt = (t * (colors.length - 1)) - idx;
+
+      const c1 = colors[idx];
+      const c2 = colors[idx + 1];
+
+      const r = Math.round(c1[0] + (c2[0] - c1[0]) * tt);
+      const g = Math.round(c1[1] + (c2[1] - c1[1]) * tt);
+      const b = Math.round(c1[2] + (c2[2] - c1[2]) * tt);
+
       return `rgb(${r},${g},${b})`;
     };
 
