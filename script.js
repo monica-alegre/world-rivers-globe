@@ -4,10 +4,10 @@ const el = document.getElementById('globeViz');
 // ---------- Globe setup ----------
 const world = new Globe(el)
   .globeImageUrl('data/basemap.jpg')
-  .backgroundColor('#000a11')
+  .backgroundColor('#090C14')
   .showAtmosphere(true)
-  .atmosphereColor('#1363b4')   // blue tone to match halo
-  .atmosphereAltitude(0.15)       // slightly thicker halo
+  .atmosphereColor('#1378a0')   // halo color
+  .atmosphereAltitude(0.15)       // halo strength
   .showGraticules(false)
   .lineHoverPrecision(2.5)  
 
