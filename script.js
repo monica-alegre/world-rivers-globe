@@ -4,31 +4,42 @@ const el = document.getElementById('globeViz');
 // ---------- Globe setup ----------
 const world = new Globe(el)
   .globeImageUrl('data/basemap.jpg')
-  .backgroundColor('#090C14')
+  .backgroundColor('#ffffff')
   .showAtmosphere(true)
-  .atmosphereColor('#1378a0')   // halo color
-  .atmosphereAltitude(0.15)       // halo strength
+  .atmosphereColor('#d0d0d0')   // halo color - gris suave
+  .atmosphereAltitude(0.12)      // halo strength - más sutil
   .showGraticules(false)
-  .lineHoverPrecision(2.5)  
+  .lineHoverPrecision(2.5)
 
-// Force ambient-only blue lighting (kill any DirectionalLight)
-function applyBlueAmbient() {
+// Enhanced lighting for volume and depth
+function applyEnhancedLighting() {
   if (window.THREE && typeof world.lights === 'function') {
-    world.lights([ new THREE.AmbientLight(0x224477, 0.8) ]);
+    world.lights([
+      new THREE.AmbientLight(0xcccccc, 0.6),  // Luz ambiental gris suave
+      new THREE.DirectionalLight(0xffffff, 0.5) // Luz direccional para volumen
+    ]);
+
+    // Position directional light
+    const dirLight = world.scene().children.find(c => c.type === 'DirectionalLight');
+    if (dirLight) {
+      dirLight.position.set(-1, 1, 1);
+    }
   }
 }
-applyBlueAmbient();
+applyEnhancedLighting();
 
-// Guard against late-added default lights (remove Directional if it reappears)
-if (world.scene().addEventListener) {
-  world.scene().addEventListener('childadded', (ev) => {
-    const c = ev.child;
-    if (c && c.isLight && c.type === 'DirectionalLight') {
-      world.scene().remove(c);
-      applyBlueAmbient(); // keep ambient-only
+// Apply material properties for better volume rendering - opaque and matte
+setTimeout(() => {
+  const globeMaterial = world.globeMaterial();
+  if (globeMaterial) {
+    globeMaterial.transparent = false;
+    globeMaterial.opacity = 1.0;
+    // Shininess
+    if (globeMaterial.shininess !== undefined) {
+      globeMaterial.shininess = 20;
     }
-  });
-}
+  }
+}, 100);
 
 // Initial POV without animation (smooth entry)
 world.pointOfView({ lat: 0, lng: 0, altitude: 2 }); // no duration
@@ -71,8 +82,8 @@ infoClose.addEventListener('click', (e) => {
 
 // ---------- Load all layers ----------
 (async function init() {
-  try {
-    // Load all data first before any animation
+  try {    
+    // Load rivers layers
     const [visResp, virtResp] = await Promise.all([
       fetch('data/ne_rivers.geojson'),
       fetch('data/ne_rivers_virtual.geojson')
@@ -88,12 +99,14 @@ infoClose.addEventListener('click', (e) => {
       const props = f.properties || {};
       const strokeVal = Number(props.strokeweig ?? props.strokewieg ?? 1);
       const riverlength = numOrNull(props.riverlength); // aggregated river length
+      const continent = props.continent || 'EU'; // get continent, default to EU
 
       if (f.geometry?.type === 'LineString') {
         return [{
           _layer: 'visual',
           strokeVal,
           riverlength,
+          continent,
           pnts: f.geometry.coordinates.map(([lng, lat]) => [lat, lng])
         }];
       } else if (f.geometry?.type === 'MultiLineString') {
@@ -101,6 +114,7 @@ infoClose.addEventListener('click', (e) => {
           _layer: 'visual',
           strokeVal,
           riverlength,
+          continent,
           pnts: line.map(([lng, lat]) => [lat, lng])
         }));
       }
@@ -108,7 +122,7 @@ infoClose.addEventListener('click', (e) => {
     });
 
     // Precompute a custom scaling based on percentiles
-    const strokeValues = [0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.8,1,1.25,1.5,2];
+    const strokeValues = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.8, 1, 1.25, 1.5, 2];
     const breaks = [0.25, 0.35, 0.6, 1]; // define quantile-like thresholds
 
     // Stroke width mapping
@@ -120,8 +134,18 @@ infoClose.addEventListener('click', (e) => {
       return 4.0;                       // major
     };
 
-    // Smooth color ramp
-    const colorFromStroke = v => {
+    // Smooth color ramp - Modern minimal palette
+    const CONT_RAMP = {
+      AF: [ [100,80,140], [130,110,170], [160,140,200], [190,170,220], [220,200,240] ],   // África: púrpura suave
+      AS: [ [60,140,120], [90,165,145], [120,190,170], [150,210,195], [180,230,220] ],    // Asia: verde azulado
+      EU: [ [80,120,160], [110,145,185], [140,170,210], [170,195,230], [200,220,245] ],   // Europa: azul grisáceo
+      NA: [ [200,100,90], [215,130,120], [230,160,150], [240,190,180], [250,220,210] ],   // Norteamérica: terracota
+      SA: [ [180,90,130], [200,120,155], [220,150,180], [235,180,205], [245,210,225] ],   // Sudamérica: rosa palo
+      OC: [ [220,150,80], [230,170,110], [240,190,140], [245,210,170], [250,230,200] ],   // Oceanía: dorado suave
+      AN: [ [140,150,160], [165,175,185], [190,200,210], [215,220,230], [235,240,245] ]   // Antártida: gris plateado
+    };
+
+    const colorFromStroke = (v, continent = 'EU') => {
       let t;
       if (v <= breaks[0]) {
         t = (v - strokeValues[0]) / (breaks[0] - strokeValues[0]) * 0.25;
@@ -135,21 +159,12 @@ infoClose.addEventListener('click', (e) => {
         t = 1.0;
       }
 
-      const colors = [
-        [7, 18, 78],     // #07124eff dark navy
-        [23, 71, 165],   // #1747A5 medium blue
-        [0, 119, 204],   // #0077CC bright blue
-        [34, 184, 230],  // #22B8E6 cyan
-        [90, 200, 245]   // #5AC8F5 light cyan (lightest)
-      ];
-
-      // Find segment
+      const colors = CONT_RAMP[continent] || CONT_RAMP.EU; // usa rampa según continente
       const idx = Math.min(colors.length - 2, Math.floor(t * (colors.length - 1)));
       const tt = (t * (colors.length - 1)) - idx;
 
       const c1 = colors[idx];
       const c2 = colors[idx + 1];
-
       const r = Math.round(c1[0] + (c2[0] - c1[0]) * tt);
       const g = Math.round(c1[1] + (c2[1] - c1[1]) * tt);
       const b = Math.round(c1[2] + (c2[2] - c1[2]) * tt);
@@ -161,7 +176,7 @@ infoClose.addEventListener('click', (e) => {
     virtualPaths = virtGJ.features.flatMap(f => {
       const props = f.properties || {};
       const name = props.name || props.NAME || props.river || 'Unnamed river';
-      const qid  = props.wikidataid || props.wikidata || props.wikitaid || null;
+      const qid = props.wikidataid || props.wikidata || props.wikitaid || null;
       const riverlength = numOrNull(props.riverlength); // aggregated river length
       const rivernum = props.rivernum || props.RIVERNUM || null;
 
@@ -186,18 +201,21 @@ infoClose.addEventListener('click', (e) => {
 
     // Visual constants
     const VIRTUAL_BASE_COLOR = 'rgba(255,255,255,0)'; // fully invisible unless selected
-    const VIRTUAL_SEL_COLOR  = 'rgba(0,200,255,1.0)';   // cyan
-    const VIRTUAL_STROKE_PX  = 6.0;                     // thick hitbox
-    const VIRTUAL_ALT        = 0.003;                   // slightly above visual layer
+    const VIRTUAL_SEL_COLOR = 'rgba(0,200,255,1.0)';   // cyan
+    const VIRTUAL_STROKE_PX = 6.0;                     // thick hitbox
+    const VIRTUAL_ALT = 0.003;                   // slightly above visual layer
 
     // Stable accessors
     const pointAlt = d => (d._layer === 'virtual' ? VIRTUAL_ALT : 0.0);
-    const stroke   = d => {
+    const stroke = d => {
       if (d._layer === 'visual') return strokePx(d.strokeVal);
       return VIRTUAL_STROKE_PX;
     };
     const color = d => {
-      if (d._layer === 'visual') return colorFromStroke(d.strokeVal);
+      if (d._layer === 'visual') {
+        const cont = d.continent || 'EU';
+        return colorFromStroke(d.strokeVal, cont);
+      }
       return SELECT.includes(d) ? VIRTUAL_SEL_COLOR : VIRTUAL_BASE_COLOR;
     };
 
@@ -289,8 +307,8 @@ infoClose.addEventListener('click', (e) => {
       SELECT = [];
       world.pathColor(world.pathColor());
 
-      // Keep ambient-only lighting after reset
-      if (typeof applyBlueAmbient === 'function') applyBlueAmbient();
+      // Keep enhanced lighting after reset
+      if (typeof applyEnhancedLighting === 'function') applyEnhancedLighting();
     });
 
   } catch (err) {
@@ -337,7 +355,7 @@ async function fetchWikiByQID(qid) {
 
     // Convert units
     const lengthKm = lenClaim ? convertLengthToKm(lenClaim.amount, lenClaim.unit) : null;
-    const widthM   = widClaim ? convertWidthToM(widClaim.amount, widClaim.unit)   : null;
+    const widthM = widClaim ? convertWidthToM(widClaim.amount, widClaim.unit) : null;
 
     // Resolve country labels (if any)
     let countryNames = null;
@@ -351,14 +369,13 @@ async function fetchWikiByQID(qid) {
       url: summary?.content_urls?.desktop?.page || (site ? site.url : ''),
       thumb: summary?.thumbnail?.source || null,
       length: lengthKm ? formatKm(lengthKm) : null,     // main value only
-      width:  widthM  ? `≈ ${formatM(widthM)}` : null,  // show as average with ≈
+      width: widthM ? `≈ ${formatM(widthM)}` : null,  // show as average with ≈
       country: countryNames ? countryNames.join(', ') : null
     };
   } catch {
     return null;
   }
 }
-
 // Pick a numeric claim preferring 'preferred' rank; returns {amount, unit} or null
 function pickQuantity(arr) {
   if (!Array.isArray(arr) || !arr.length) return null;
@@ -450,6 +467,6 @@ function updatePopup(info, name, qid) {
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, m => (
-    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]
   ));
 }

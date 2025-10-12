@@ -3,16 +3,39 @@
   <head>
     <meta charset="utf-8" />
     <title>World Rivers 3D Globe</title>
-    <meta name="description" content="Interactive 3D globe of the world's major rivers with Wikipedia-linked information in popups." />
+    <meta name="description" content="Interactive 3D globe of the world's major rivers - explore the planet's hydrology in 3D with Wikipedia-linked popups and real data visualization." />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="keywords" content="3D globe, rivers map, GIS, hydrology, interactive globe, globe.gl, Three.js, data visualization" />
+    <meta name="author" content="Monica Alegre" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="favicon.png" />
+
+    <!-- Social / Open Graph (Facebook, LinkedIn) -->
+    <meta property="og:title" content="World Rivers 3D Globe" />
+    <meta property="og:description" content="Explore the world's major rivers in a minimalist 3D globe — interactive visualization built with Globe.gl." />
+    <meta property="og:image" content="https://monica-alegre.me/world-rivers-globe/thumbnail.jpg" />
+    <meta property="og:url" content="https://monica-alegre.me/world-rivers-globe/" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="World Rivers 3D Globe" />
+    <meta name="twitter:description" content="Explore the world's major rivers in a minimalist 3D globe - interactive visualization built with Globe.gl." />
+    <meta name="twitter:image" content="https://monica-alegre.me/world-rivers-globe/thumbnail.jpg" />
+
+    <!-- Fonts & Styles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
-    <!-- globe.gl UMD (incluye three y el render loop) -->
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/globe.gl" defer></script>
     <script src="script.js" defer></script>
   </head>
+
   <body>
     <header id="main-header">
       <h1>World Rivers 3D Globe</h1>
